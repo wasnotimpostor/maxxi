@@ -58,7 +58,7 @@ public class Users {
     @Column(name = "updated_at", nullable = false)
     private Date updated_at;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
