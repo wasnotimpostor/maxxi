@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -76,6 +77,36 @@ public class UserServiceImpl implements UserService {
             logger.error("message {} ", e);
         }
         return exist;
+    }
+
+    @Override
+    public Users save(Users users) {
+        Optional<Users> exist = usersRepository.findById(users.getId());
+
+        try {
+            if (!exist.isPresent())
+                throw new Exception("Data Not Found!");
+            if (users == null){
+                throw new Exception("Failed Update Data");
+            } else {
+                Users save = Users.builder()
+                        .id(exist.get().getId())
+                        .name(users.getName())
+                        .username(exist.get().getUsername())
+                        .email(users.getEmail())
+                        .password(new BCryptPasswordEncoder().encode(users.getPassword()))
+                        .code(exist.get().getCode())
+                        .address(users.getAddress())
+                        .ktp_number(users.getKtp_number())
+                        .phone_number(users.getPhone_number())
+                        .roles(exist.get().getRoles())
+                        .build();
+                usersRepository.save(save);
+            }
+        } catch (Exception e){
+            logger.error("message {} ",e);
+        }
+        return users;
     }
 }
 
