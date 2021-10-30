@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
@@ -33,6 +34,10 @@ public class Users {
     @Size(min = 3, max = 50)
     @Column(name = "username", nullable = false, unique = true)
     private String username;
+
+    @Email
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
 
     @Column(name = "password", nullable = false)
     private String password;
