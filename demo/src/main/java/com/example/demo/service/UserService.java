@@ -10,5 +10,6 @@ public interface UserService {
     Page<Users> getByPage(String name, String code, Pageable pageable);
     List<Users> getByList();
     Users delete(String id);
+    Users save(Users users);
 }
 
