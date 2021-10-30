@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.entity.Users;
 import com.example.demo.service.UserService;
 import com.example.demo.utils.GlobalApiResponse;
 import org.json.JSONObject;
@@ -10,9 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping(path = "users", produces = MediaType.APPLICATION_JSON_VALUE)
-
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
@@ -46,6 +49,14 @@ public class UserController {
         return new GlobalApiResponse<>(
                 HttpStatus.OK.value(),
                 this.userService.delete(id)
+        );
+    }
+
+    @PostMapping(value = "update", produces = MediaType.APPLICATION_JSON_VALUE)
+    public GlobalApiResponse<?> update(@RequestBody @Valid Users users){
+        return new GlobalApiResponse<>(
+                HttpStatus.OK.value(),
+                this.userService.save(users)
         );
     }
 }
