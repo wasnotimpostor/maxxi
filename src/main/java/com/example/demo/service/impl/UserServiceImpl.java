@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -86,7 +88,7 @@ public class UserServiceImpl implements UserService {
         String name = jsonObject.optString("name");
         String email = jsonObject.optString("email");
         String address = jsonObject.optString("address");
-        String ktp_number = jsonObject.optString("ket_number");
+        String ktp_number = jsonObject.optString("ktp_number");
         String phone_number = jsonObject.optString("phone_number");
 
         Date date= new Date();
@@ -110,22 +112,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Users save(String id, String request) {
+    public ResponseEntity<Map<String, Object>> save(String id, String request) {
+        Map<String, Object> resp = new HashMap<>();
         JSONObject jsonObject = new JSONObject(request);
         Optional<Users> exist = usersRepository.findById(id);
         Users users = usersJson(id, jsonObject);
+        if (users.getKtp_number().length() < 16)
+            resp.put("ktp_number", "KTP harus 16 digit");
+        if (users.getPhone_number().length() < 9 || users.getPhone_number().length() > 15)
+            resp.put("phone_number", "Nomor telepon min. 9 angka dan maksimal 15 angka");
+        if (users.getName().length()<3 || users.getName().length()>50)
+            resp.put("name", "Nama min. 3 angka dan maksimal 50 angka");
         try {
             if (!exist.isPresent())
-                throw new Exception("Data Not Found!");
+                resp.put("error", "Data Not Found!");
             if (users == null){
-                throw new Exception("Failed Update Data");
+                resp.put("error", "Bad Parameters");
             } else {
                 Users save = usersRepository.save(users);
+                resp.put("success", save);
             }
         } catch (Exception e){
             logger.error("message {} ",e);
         }
-        return users;
+        return new ResponseEntity<>(resp, HttpStatus.OK);
     }
 }
 
