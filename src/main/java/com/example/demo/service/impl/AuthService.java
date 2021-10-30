@@ -61,7 +61,14 @@ public class AuthService {
         return code;
     }
 
-    public Users save(Register register, Set<Roles> roles){
+    public ResponseEntity<Map<String, Object>> save(Register register, Set<Roles> roles){
+        Map<String, Object> resp = new HashMap<>();
+        if (register.getKtp_number().length() < 16)
+            resp.put("ktp_number", "KTP harus 16 digit");
+        if (register.getPhone_number().length() < 9 || register.getPhone_number().length() > 15)
+            resp.put("phone_number", "Nomor telepon min. 9 angka dan maksimal 15 angka");
+        if (register.getName().length()<3 || register.getName().length()>50)
+            resp.put("name", "Nama min. 3 angka dan maksimal 50 angka");
         Users users = Users.builder()
                 .name(register.getName())
                 .username(register.getUsername())
@@ -73,10 +80,12 @@ public class AuthService {
                 .phone_number(register.getPhone_number())
                 .roles(roles)
                 .build();
-        return usersRepository.save(users);
+        Users save = usersRepository.save(users);
+        resp.put("success", save);
+        return new ResponseEntity<>(resp, HttpStatus.OK);
     }
 
-    public Users register(Register register){
+    public ResponseEntity<Map<String, Object>> register(Register register){
         Set<Integer> strRoles = register.getRole();
         Set<Roles> roles = new HashSet<>();
 
