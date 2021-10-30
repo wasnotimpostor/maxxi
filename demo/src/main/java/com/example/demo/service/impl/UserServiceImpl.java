@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.entity.Users;
 import com.example.demo.repository.UsersRepository;
 import com.example.demo.service.UserService;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -79,29 +82,45 @@ public class UserServiceImpl implements UserService {
         return exist;
     }
 
-    @Override
-    public Users save(Users users) {
-        Optional<Users> exist = usersRepository.findById(users.getId());
+    Users usersJson(String id, JSONObject jsonObject){
+        String name = jsonObject.optString("name");
+        String email = jsonObject.optString("email");
+        String address = jsonObject.optString("address");
+        String ktp_number = jsonObject.optString("ket_number");
+        String phone_number = jsonObject.optString("phone_number");
 
+        Date date= new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
+        format.format(ts);
+
+        Users users;
+        if (id == null){
+            return null;
+        } else {
+            Optional<Users> exist = usersRepository.findById(id);
+            if (exist.isPresent())
+                users = new Users(id, name, exist.get().getUsername(), email, exist.get().getPassword(),
+                        exist.get().getCode(), address, ktp_number, phone_number, exist.get().getCreated_at(), ts, exist.get().getRoles());
+            else
+                return null;
+        }
+        return users;
+    }
+
+    @Override
+    public Users save(String id, String request) {
+        JSONObject jsonObject = new JSONObject(request);
+        Optional<Users> exist = usersRepository.findById(id);
+        Users users = usersJson(id, jsonObject);
         try {
             if (!exist.isPresent())
                 throw new Exception("Data Not Found!");
             if (users == null){
                 throw new Exception("Failed Update Data");
             } else {
-                Users save = Users.builder()
-                        .id(exist.get().getId())
-                        .name(users.getName())
-                        .username(exist.get().getUsername())
-                        .email(users.getEmail())
-                        .password(new BCryptPasswordEncoder().encode(users.getPassword()))
-                        .code(exist.get().getCode())
-                        .address(users.getAddress())
-                        .ktp_number(users.getKtp_number())
-                        .phone_number(users.getPhone_number())
-                        .roles(exist.get().getRoles())
-                        .build();
-                usersRepository.save(save);
+                Users save = usersRepository.save(users);
             }
         } catch (Exception e){
             logger.error("message {} ",e);
