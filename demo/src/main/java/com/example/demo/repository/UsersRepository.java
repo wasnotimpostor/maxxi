@@ -10,9 +10,17 @@ public interface UsersRepository extends JpaRepository<Users, String> {
     @Query(
             value = "select u.*\n"+
                     " from users as u\n"+
-                    " where (u.username = binary(?1)" +
+                    " where u.username = binary(?1)" +
                     " or u.email = binary(?1)",
             nativeQuery = true
     )
     Optional<Users> findByUsername(String username);
+
+    @Query(
+            value = "select u.*\n"+
+                    " from users as u\n"+
+                    " where u.code = ?1",
+            nativeQuery = true
+    )
+    Optional<Users> checkCode(String code);
 }
