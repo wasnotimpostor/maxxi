@@ -53,10 +53,11 @@ public class UserController {
     }
 
     @PostMapping(value = "update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public GlobalApiResponse<?> update(@RequestBody @Valid Users users){
+    public GlobalApiResponse<?> update(@RequestParam(name = "id") String id,
+                                       @RequestBody @Valid String request){
         return new GlobalApiResponse<>(
                 HttpStatus.OK.value(),
-                this.userService.save(users)
+                this.userService.save(id, request)
         );
     }
 }
