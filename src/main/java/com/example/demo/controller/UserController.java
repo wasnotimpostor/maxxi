@@ -65,5 +65,14 @@ public class UserController {
                 this.userService.save(id, request)
         );
     }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping(value = "get", produces = MediaType.APPLICATION_JSON_VALUE)
+    public GlobalApiResponse<?> findById(@RequestParam(name = "id") String id){
+        return new GlobalApiResponse<>(
+                HttpStatus.OK.value(),
+                this.userService.findById(id)
+        );
+    }
 }
 
