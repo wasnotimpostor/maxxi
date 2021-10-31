@@ -137,5 +137,21 @@ public class UserServiceImpl implements UserService {
         }
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
+
+    @Override
+    public ResponseEntity<Map<String, Object>> findById(String id) {
+        Map<String, Object> resp = new HashMap<>();
+
+        try {
+            Optional<Users> users = usersRepository.findById(id);
+            if (!users.isPresent())
+                resp.put("error", "Data Not Found!");
+            else
+                resp.put("success", users);
+        } catch (Exception e){
+            logger.error("message {} ",e);
+        }
+        return new ResponseEntity<>(resp, HttpStatus.OK);
+    }
 }
 
